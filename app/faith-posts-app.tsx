@@ -17,6 +17,16 @@ type Post = {
   createdAt: string;
 };
 
+type UploadedFile = {
+  id: number;
+  name: string;
+  size: number;
+  type: string;
+  tab: PostType;
+  relativePath: string;
+  url: string;
+};
+
 const postTypes: PostType[] = [
   "Bible Verse",
   "Evidence",
@@ -59,25 +69,32 @@ const starterPosts: Post[] = [
   },
 ];
 
+function loadSavedPosts() {
+  if (typeof window === "undefined") {
+    return starterPosts;
+  }
+
+  const savedPosts = window.localStorage.getItem("faith-posts");
+
+  if (!savedPosts) {
+    return starterPosts;
+  }
+
+  try {
+    return JSON.parse(savedPosts) as Post[];
+  } catch {
+    return starterPosts;
+  }
+}
+
 export default function FaithPostsApp() {
-  const [posts, setPosts] = useState<Post[]>(() => {
-    if (typeof window === "undefined") {
-      return starterPosts;
-    }
-
-    const savedPosts = window.localStorage.getItem("faith-posts");
-
-    if (!savedPosts) {
-      return starterPosts;
-    }
-
-    try {
-      return JSON.parse(savedPosts) as Post[];
-    } catch {
-      return starterPosts;
-    }
-  });
+  const [posts, setPosts] = useState<Post[]>(loadSavedPosts);
   const [selectedType, setSelectedType] = useState<PostType | "All">("All");
+  const [selectedFileTab, setSelectedFileTab] =
+    useState<PostType>("Bible Verse");
+  const [uploadTargetTab, setUploadTargetTab] =
+    useState<PostType>("Bible Verse");
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [form, setForm] = useState({
     type: "Bible Verse" as PostType,
     title: "",
@@ -96,6 +113,10 @@ export default function FaithPostsApp() {
 
     return posts.filter((post) => post.type === selectedType);
   }, [posts, selectedType]);
+
+  const visibleFiles = uploadedFiles.filter(
+    (file) => file.tab === selectedFileTab,
+  );
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -134,6 +155,52 @@ export default function FaithPostsApp() {
     setPosts((currentPosts) => currentPosts.filter((post) => post.id !== id));
   }
 
+  function handleFiles(files: FileList | null) {
+    if (!files?.length) {
+      return;
+    }
+
+    const nextFiles = Array.from(files).map((file) => ({
+      id: Date.now() + Math.random(),
+      name: file.name,
+      size: file.size,
+      type: file.type || "Unknown file",
+      tab: uploadTargetTab,
+      relativePath:
+        (file as File & { webkitRelativePath?: string }).webkitRelativePath ||
+        file.name,
+      url: URL.createObjectURL(file),
+    }));
+
+    setUploadedFiles((currentFiles) => [...nextFiles, ...currentFiles]);
+    setSelectedFileTab(uploadTargetTab);
+  }
+
+  function moveFile(fileId: number, tab: PostType) {
+    setUploadedFiles((currentFiles) =>
+      currentFiles.map((file) =>
+        file.id === fileId
+          ? {
+              ...file,
+              tab,
+            }
+          : file,
+      ),
+    );
+  }
+
+  function removeFile(fileId: number) {
+    setUploadedFiles((currentFiles) => {
+      const fileToRemove = currentFiles.find((file) => file.id === fileId);
+
+      if (fileToRemove) {
+        URL.revokeObjectURL(fileToRemove.url);
+      }
+
+      return currentFiles.filter((file) => file.id !== fileId);
+    });
+  }
+
   return (
     <main className="min-h-screen bg-[#f7f6f2] text-stone-950">
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-10">
@@ -143,7 +210,7 @@ export default function FaithPostsApp() {
               TINIG NG KATOTOHANAN
             </p>
             <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">
-              Bible verses, evidences, and deliverance prayers
+              Bible verses, evidences, apologetics, and deliverance prayers
             </h1>
           </div>
           <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
@@ -294,6 +361,145 @@ export default function FaithPostsApp() {
             </div>
           </section>
         </div>
+
+        <section className="border-t border-stone-300 pt-8">
+          <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+            <div className="h-fit border border-stone-300 bg-white p-5 shadow-sm">
+              <h2 className="text-xl font-semibold">Upload files</h2>
+
+              <label className="mt-5 block text-sm font-semibold text-stone-700">
+                Save uploads under
+                <select
+                  className="mt-2 w-full border border-stone-300 bg-white px-3 py-3 text-base outline-none focus:border-emerald-700"
+                  value={uploadTargetTab}
+                  onChange={(event) =>
+                    setUploadTargetTab(event.target.value as PostType)
+                  }
+                >
+                  {postTypes.map((type) => (
+                    <option key={type}>{type}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="mt-5 flex cursor-pointer flex-col items-center justify-center border border-dashed border-stone-400 bg-stone-50 px-4 py-8 text-center transition hover:border-emerald-800 hover:bg-emerald-50">
+                <span className="font-semibold text-stone-800">
+                  Upload files
+                </span>
+                <span className="mt-1 text-sm text-stone-500">
+                  Select one or more files
+                </span>
+                <input
+                  className="sr-only"
+                  multiple
+                  onChange={(event) => handleFiles(event.target.files)}
+                  type="file"
+                />
+              </label>
+
+              <label className="mt-3 flex cursor-pointer flex-col items-center justify-center border border-dashed border-stone-400 bg-stone-50 px-4 py-8 text-center transition hover:border-emerald-800 hover:bg-emerald-50">
+                <span className="font-semibold text-stone-800">
+                  Upload folder
+                </span>
+                <span className="mt-1 text-sm text-stone-500">
+                  Keeps folder paths in the file list
+                </span>
+                <input
+                  className="sr-only"
+                  multiple
+                  onChange={(event) => handleFiles(event.target.files)}
+                  type="file"
+                  {...{ directory: "", webkitdirectory: "" }}
+                />
+              </label>
+
+              <p className="mt-4 text-sm leading-6 text-stone-500">
+                Files stay in this browser session. For shared hosted storage,
+                connect Vercel Blob or another database-backed file store.
+              </p>
+            </div>
+
+            <div>
+              <div className="flex flex-wrap gap-2">
+                {postTypes.map((type) => (
+                  <button
+                    className={`border px-4 py-2 text-sm font-semibold transition ${
+                      selectedFileTab === type
+                        ? "border-emerald-800 bg-emerald-800 text-white"
+                        : "border-stone-300 bg-white text-stone-700 hover:border-emerald-800"
+                    }`}
+                    key={type}
+                    onClick={() => setSelectedFileTab(type)}
+                    type="button"
+                  >
+                    {type} (
+                    {uploadedFiles.filter((file) => file.tab === type).length})
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                {visibleFiles.length ? (
+                  visibleFiles.map((file) => (
+                    <article
+                      className="border border-stone-300 bg-white p-4 shadow-sm"
+                      key={file.id}
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <h3 className="font-semibold">{file.name}</h3>
+                          <p className="mt-1 text-sm text-stone-500">
+                            {file.relativePath}
+                          </p>
+                          <p className="mt-1 text-sm text-stone-500">
+                            {(file.size / 1024).toFixed(1)} KB - {file.type}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <a
+                            className="border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-700 transition hover:border-emerald-800 hover:text-emerald-800"
+                            download={file.name}
+                            href={file.url}
+                          >
+                            Download
+                          </a>
+                          <button
+                            className="border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-700 transition hover:border-red-700 hover:text-red-700"
+                            onClick={() => removeFile(file.id)}
+                            type="button"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+
+                      <label className="mt-4 block text-sm font-semibold text-stone-700">
+                        Move to tab
+                        <select
+                          className="mt-2 w-full border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-700 sm:w-64"
+                          value={file.tab}
+                          onChange={(event) =>
+                            moveFile(file.id, event.target.value as PostType)
+                          }
+                        >
+                          {postTypes.map((type) => (
+                            <option key={type}>{type}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </article>
+                  ))
+                ) : (
+                  <div className="border border-stone-300 bg-white p-6 text-stone-500 shadow-sm">
+                    No files in this tab yet.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <footer className="border-t border-stone-300 pt-5 text-center text-sm font-semibold uppercase tracking-[0.16em] text-stone-500">
           TINIG NG KATOTOHANAN
         </footer>
