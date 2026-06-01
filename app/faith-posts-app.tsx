@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type PostType =
@@ -416,9 +417,14 @@ export default function FaithPostsApp() {
         <header className="grid gap-6 rounded-lg border border-white/70 bg-white/85 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">
-                TINIG NG KATOTOHANAN
-              </p>
+              <Image
+                alt="Tinig ng Katotohanan"
+                className="h-24 w-auto sm:h-28"
+                height={700}
+                priority
+                src="/tinig-logo.svg"
+                width={900}
+              />
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
                 Public Portal
               </span>
@@ -584,8 +590,14 @@ export default function FaithPostsApp() {
           </div>
         </section>
 
-        <footer className="border-t border-stone-200 pt-5 text-center text-sm font-semibold uppercase tracking-[0.16em] text-stone-500">
-          TINIG NG KATOTOHANAN
+        <footer className="flex justify-center border-t border-stone-200 pt-5">
+          <Image
+            alt="Tinig ng Katotohanan"
+            className="h-20 w-auto"
+            height={700}
+            src="/tinig-logo.svg"
+            width={900}
+          />
         </footer>
       </section>
 
