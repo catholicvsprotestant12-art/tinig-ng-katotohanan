@@ -2,24 +2,23 @@
 
 ## Added Features
 
-- Public portal for browsing published posts and uploaded resources.
-- Admin settings popover for signing in and managing content without leaving the public site.
-- Default admin credentials:
-  - Username: `admin`
-  - Password: `admin123`
-- Logout control inside the admin popover.
-- Bible verse dropdowns by book and verse.
-- `Use Verse` action to fill the post form automatically.
-- Modernized visual design with cleaner panels, rounded controls, polished tabs, and a soft page background.
-- File and folder upload organizer.
-- File movement between tabs:
+- Standalone public blog experience for Tinig ng Katotohanan.
+- Category filters for:
   - Bible Verse
   - Evidence
   - Deliverance Prayer
   - Apologetics
-- In-app file previews for images, PDFs, video, audio, and text-like files.
-- Public file viewing and downloading by content tab.
+- Featured post layout with latest post cards.
+- New site logo in the page header, footer, and browser tab icon.
+- Modernized visual design with cleaner panels, rounded controls, polished category tabs, and a soft page background.
 - Vercel configuration through `vercel.json`.
+
+## Removed Features
+
+- Admin login and admin management popover.
+- File and folder upload controls.
+- File download controls.
+- In-browser file previews and file tab management.
 
 ## Verification
 
@@ -32,10 +31,6 @@ npm run build
 
 Both commands passed successfully.
 
-## Security Note
+## Content Note
 
-The current admin login is client-side only and is intended for a simple prototype. For a public production app, authentication should be moved to a server-backed system with protected routes, sessions, hashed passwords, and database storage.
-
-## Storage Note
-
-Posts are saved in browser `localStorage`, and uploaded files are kept as browser object URLs for the current session. For shared public storage across users, connect a hosted storage service such as Vercel Blob, Supabase Storage, or another database-backed file store.
+The current blog posts are local static content inside the app component. To publish new posts without code edits, connect a CMS or database-backed content source later.

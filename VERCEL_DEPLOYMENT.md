@@ -28,6 +28,6 @@ vercel --prod
 
 The first `vercel` command creates a preview deployment. `vercel --prod` publishes the production deployment.
 
-## Important Data Note
+## Important Content Note
 
-The current app shows a public portal with an admin settings popover. Posts are still saved in browser `localStorage`, and uploaded files are kept as browser object URLs for the current session. This works on Vercel for a prototype, but posts and files are saved only on each visitor's device. To share content publicly across users, add a database such as Vercel Postgres, Neon, Supabase, or another hosted database, plus hosted file storage such as Vercel Blob or Supabase Storage.
+The current app is a standalone public blog with static posts defined in the codebase. This works on Vercel without extra services. To publish posts from a dashboard later, connect a CMS or database-backed content source.
