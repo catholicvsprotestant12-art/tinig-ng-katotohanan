@@ -40,6 +40,11 @@ const postTypes: PostType[] = [
   "Apologetics",
 ];
 
+const adminCredentials = {
+  username: "admin",
+  password: "admin123",
+};
+
 const verseLibrary: VerseEntry[] = [
   {
     book: "John",
@@ -158,6 +163,12 @@ function loadSavedPosts() {
 
 export default function FaithPostsApp() {
   const [posts, setPosts] = useState<Post[]>(loadSavedPosts);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [loginForm, setLoginForm] = useState({
+    username: "",
+    password: "",
+  });
   const [selectedType, setSelectedType] = useState<PostType | "All">("All");
   const [selectedFileTab, setSelectedFileTab] =
     useState<PostType>("Bible Verse");
@@ -208,6 +219,84 @@ export default function FaithPostsApp() {
       body: verse.text,
     });
     setSelectedType("Bible Verse");
+  }
+
+  function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (
+      loginForm.username === adminCredentials.username &&
+      loginForm.password === adminCredentials.password
+    ) {
+      setIsAdmin(true);
+      setLoginError("");
+      setLoginForm({
+        username: "",
+        password: "",
+      });
+      return;
+    }
+
+    setLoginError("Invalid username or password.");
+  }
+
+  if (!isAdmin) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#f8faf7_0%,#eef4f1_48%,#f7f4ee_100%)] px-5 text-stone-950">
+        <section className="w-full max-w-md rounded-lg border border-white/70 bg-white/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.10)] backdrop-blur">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">
+            TINIG NG KATOTOHANAN
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold leading-tight">
+            Admin Login
+          </h1>
+
+          <form className="mt-6" onSubmit={handleLogin}>
+            <label className="block text-sm font-semibold text-stone-700">
+              Username
+              <input
+                className="mt-2 w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-3 text-base outline-none transition focus:border-emerald-700 focus:bg-white"
+                value={loginForm.username}
+                onChange={(event) =>
+                  setLoginForm((currentForm) => ({
+                    ...currentForm,
+                    username: event.target.value,
+                  }))
+                }
+              />
+            </label>
+
+            <label className="mt-4 block text-sm font-semibold text-stone-700">
+              Password
+              <input
+                className="mt-2 w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-3 text-base outline-none transition focus:border-emerald-700 focus:bg-white"
+                type="password"
+                value={loginForm.password}
+                onChange={(event) =>
+                  setLoginForm((currentForm) => ({
+                    ...currentForm,
+                    password: event.target.value,
+                  }))
+                }
+              />
+            </label>
+
+            {loginError ? (
+              <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+                {loginError}
+              </p>
+            ) : null}
+
+            <button
+              className="mt-5 w-full rounded-lg bg-emerald-800 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-900"
+              type="submit"
+            >
+              Sign In
+            </button>
+          </form>
+        </section>
+      </main>
+    );
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -359,9 +448,18 @@ export default function FaithPostsApp() {
       <section className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-10">
         <header className="grid gap-6 rounded-lg border border-white/70 bg-white/85 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">
-              TINIG NG KATOTOHANAN
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                TINIG NG KATOTOHANAN
+              </p>
+              <button
+                className="rounded-full border border-stone-200 bg-white px-3 py-1 text-xs font-semibold text-stone-600 shadow-sm transition hover:border-red-700 hover:text-red-700"
+                onClick={() => setIsAdmin(false)}
+                type="button"
+              >
+                Logout
+              </button>
+            </div>
             <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-tight text-stone-950 sm:text-5xl">
               Bible verses, evidences, apologetics, and deliverance prayers
             </h1>
