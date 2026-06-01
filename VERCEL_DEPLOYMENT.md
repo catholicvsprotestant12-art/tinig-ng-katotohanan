@@ -30,5 +30,4 @@ The first `vercel` command creates a preview deployment. `vercel --prod` publish
 
 ## Important Data Note
 
-The current app saves posts in browser `localStorage`. This works on Vercel, but posts are saved only on each visitor's device. To share posts publicly across users, add a database such as Vercel Postgres, Neon, Supabase, or another hosted database.
-
+The current app shows a public portal with an admin settings popover. Posts are still saved in browser `localStorage`, and uploaded files are kept as browser object URLs for the current session. This works on Vercel for a prototype, but posts and files are saved only on each visitor's device. To share content publicly across users, add a database such as Vercel Postgres, Neon, Supabase, or another hosted database, plus hosted file storage such as Vercel Blob or Supabase Storage.

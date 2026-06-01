@@ -2,11 +2,12 @@
 
 ## Added Features
 
-- Admin login portal for the web app.
+- Public portal for browsing published posts and uploaded resources.
+- Admin settings popover for signing in and managing content without leaving the public site.
 - Default admin credentials:
   - Username: `admin`
   - Password: `admin123`
-- Logout button in the main app header.
+- Logout control inside the admin popover.
 - Bible verse dropdowns by book and verse.
 - `Use Verse` action to fill the post form automatically.
 - Modernized visual design with cleaner panels, rounded controls, polished tabs, and a soft page background.
@@ -17,6 +18,7 @@
   - Deliverance Prayer
   - Apologetics
 - In-app file previews for images, PDFs, video, audio, and text-like files.
+- Public file viewing and downloading by content tab.
 - Vercel configuration through `vercel.json`.
 
 ## Verification
